@@ -171,6 +171,18 @@ tbody td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:var(--text);whi
 /* Chart container */
 .chart-wrap{position:relative}
 
+/* Clickable number card */
+.num-card{background:var(--card);border-radius:var(--r);border:1.5px solid var(--border);padding:16px 18px;box-shadow:var(--sh);transition:all .2s;position:relative;overflow:hidden}
+.num-card .num{font-size:32px;font-weight:800;letter-spacing:-1.5px;line-height:1;cursor:pointer;display:inline-block;transition:transform .15s}
+.num-card .num.clickable{text-decoration:underline;text-underline-offset:4px;text-decoration-style:dashed;cursor:pointer}
+.num-card .num.clickable:hover{transform:scale(1.08)}
+.num-card .lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.num-card .sub{font-size:11px;color:var(--subtle);margin-top:4px}
+.num-card .bar{height:4px;background:#f1f5f9;border-radius:2px;margin-top:10px;overflow:hidden}
+.num-card .bar-fill{height:100%;border-radius:2px;transition:width .8s ease}
+.num-card::after{content:'Click to see sites';position:absolute;bottom:8px;right:10px;font-size:9px;font-weight:600;color:var(--subtle);opacity:0;transition:opacity .2s;letter-spacing:.04em;text-transform:uppercase}
+.num-card:hover::after{opacity:1}
+
 /* IT chart cards */
 .it-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:700px){.it-chart-grid{grid-template-columns:1fr}}
@@ -294,6 +306,18 @@ tbody td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:var(--text);whi
 
     <!-- IT detail KPIs -->
     <div class="row cols-4" id="it-kpi-detail" style="margin-bottom:16px"></div>
+
+    <!-- 4G Activity Only clickable cards -->
+    <div style="margin-bottom:12px">
+      <p style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">&#128225; 4G Activity Only Sites <span style="font-weight:400;text-transform:none;font-size:10px">(click a number to see site IDs)</span></p>
+      <div class="row cols-3" id="g4only-cards" style="margin-bottom:16px"></div>
+    </div>
+
+    <!-- SSV 5G IT Feedback clickable cards -->
+    <div style="margin-bottom:16px">
+      <p style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">&#128202; SSV Acceptance Status — 5G IT Feedback <span style="font-weight:400;text-transform:none;font-size:10px">(click a number to see site IDs)</span></p>
+      <div class="row cols-4" id="ssv-cards" style="margin-bottom:16px"></div>
+    </div>
 
     <!-- IT CHARTS -->
     <div class="it-chart-grid" style="margin-bottom:28px">
@@ -542,6 +566,105 @@ function renderITPieChart(it){
   });
 }
 
+/* Clickable number cards for 4G Activity & SSV */
+function renderClickableCards(it){
+  if(!it) return;
+
+  // 4G Activity Only cards
+  const g4all   = it.g4Groups?.pending?.length ? [...(it.g4Groups.accepted||[]),...(it.g4Groups.pending||[])] : (it.g4onlyAll||[]);
+  const g4acc   = it.g4Groups?.accepted || it.g4onlyAcc || [];
+  const g4pend  = it.g4Groups?.pending  || it.g4onlyPend || [];
+  const g4total = g4acc.length + g4pend.length;
+
+  function numCard(lbl,val,color,pctVal,sites,barColor){
+    const hasData = sites && sites.length > 0;
+    return `<div class="num-card">
+      <div class="lbl">${lbl}</div>
+      <div class="num clickable" style="color:${color}" onclick='openSiteListModal(${JSON.stringify(lbl)},${JSON.stringify(sites||[])})'>${val.toLocaleString()}</div>
+      <div class="sub">${pctVal}</div>
+      <div class="bar"><div class="bar-fill" style="width:${pctVal.replace(/[^0-9]/g,'')||100}%;background:${barColor}"></div></div>
+    </div>`;
+  }
+
+  const g4pctA = g4total ? Math.round(g4acc.length/g4total*100)+'% accepted' : '—';
+  const g4pctP = g4total ? Math.round(g4pend.length/g4total*100)+'% pending'  : '—';
+
+  $('g4only-cards').innerHTML =
+    numCard('Total 4G Activity Only', g4total, '#f59e0b', 'In 4G tab with status 4G Only', [...g4acc,...g4pend], '#f59e0b') +
+    numCard('Accepted', g4acc.length, '#10b981', g4pctA, g4acc, '#10b981') +
+    numCard('Pending',  g4pend.length,'#94a3b8', g4pctP, g4pend,'#94a3b8');
+
+  // SSV 5G IT Feedback cards
+  const ssvAcc  = it.ssvGroups?.accepted  || it.ssvAccepted  || [];
+  const ssvSub  = it.ssvGroups?.submitted || it.ssvSubmitted || [];
+  const ssvUIT  = it.ssvGroups?.underit   || it.ssvUnderIT   || [];
+  const ssvPend = it.ssvGroups?.pending   || it.ssvPending   || [];
+  const ssvTotal = ssvAcc.length+ssvSub.length+ssvUIT.length+ssvPend.length;
+  function ssvPct(n){ return ssvTotal?Math.round(n/ssvTotal*100)+'% of 5G sites':'—'; }
+
+  $('ssv-cards').innerHTML =
+    numCard('Accepted',      ssvAcc.length,  '#10b981', ssvPct(ssvAcc.length),  ssvAcc,  '#10b981') +
+    numCard('Submitted',     ssvSub.length,  '#6366f1', ssvPct(ssvSub.length),  ssvSub,  '#6366f1') +
+    numCard('Under IT',      ssvUIT.length,  '#f59e0b', ssvPct(ssvUIT.length),  ssvUIT,  '#f59e0b') +
+    numCard('Pending / Other',ssvPend.length,'#94a3b8', ssvPct(ssvPend.length), ssvPend, '#94a3b8');
+}
+
+/* Site list modal for IT cards */
+let _siteModalRows=[], _siteModalLabel='';
+function openSiteListModal(label, sites){
+  if(!sites||!sites.length){alert('No sites in this group.');return;}
+  _modalAllRows=[]; // reset diff mode
+  _siteModalLabel=label;
+  _siteModalRows=sites;
+  $('modal-title').textContent = label + ' — Site IDs';
+  $('modal-subtitle').textContent = sites.length.toLocaleString()+' site'+(sites.length!==1?'s':'')+' · Click a row to copy the Site ID';
+  $('modal-search').value='';
+  renderSiteModalList(sites);
+  $('modal-overlay').classList.add('open');
+  document.addEventListener('keydown',_escClose);
+}
+
+function renderSiteModalList(sites){
+  const STATUS_COLOR={'accepted':'#10b981','submitted':'#6366f1','under it':'#f59e0b'};
+  $('modal-counts').innerHTML=`<span class="count-pill" style="background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe">${sites.length} site${sites.length!==1?'s':''}</span>`;
+
+  if(!sites.length){
+    $('modal-list').innerHTML=`<p style="text-align:center;color:var(--muted);padding:40px;font-size:13px">No sites match.</p>`;
+    return;
+  }
+
+  // Table header
+  let html=`<table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="background:#f8faff;position:sticky;top:0">
+      <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1.5px solid var(--border)">#</th>
+      <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1.5px solid var(--border)">Site ID</th>
+      <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1.5px solid var(--border)">IT Feedback</th>
+      <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1.5px solid var(--border)">Acc. Date</th>
+      <th style="padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1.5px solid var(--border)">Gov / City</th>
+    </tr></thead><tbody>`;
+
+  sites.forEach(function(s,i){
+    const fb = s.feedback||s.itFeedback||'—';
+    const fbLower = fb.toLowerCase();
+    const fbColor = STATUS_COLOR[fbLower]||'#94a3b8';
+    const gov = s.gov||''; const city = s.city||'';
+    const accDate = s.accDate||'';
+    html+=`<tr style="cursor:pointer;transition:background .1s" 
+      onmouseover="this.style.background='#f0f4ff'" 
+      onmouseout="this.style.background=''"
+      onclick="navigator.clipboard&&navigator.clipboard.writeText('${s.id}');this.style.background='#d1fae5'">
+      <td style="padding:9px 12px;border-bottom:1px solid #f1f5f9;color:var(--subtle)">${i+1}</td>
+      <td style="padding:9px 12px;border-bottom:1px solid #f1f5f9;font-weight:700;color:#4338ca;font-family:monospace;font-size:13px">${s.id}</td>
+      <td style="padding:9px 12px;border-bottom:1px solid #f1f5f9"><span style="background:${fbColor}22;color:${fbColor};padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700">${fb}</span></td>
+      <td style="padding:9px 12px;border-bottom:1px solid #f1f5f9;color:var(--muted);font-size:11px">${accDate}</td>
+      <td style="padding:9px 12px;border-bottom:1px solid #f1f5f9;color:var(--muted);font-size:11px">${gov}${city?' · '+city:''}</td>
+    </tr>`;
+  });
+
+  html+='</tbody></table>';
+  $('modal-list').innerHTML=html;
+}
+
 /* IT Section */
 function renderITSection(it){
   _itData=it;
@@ -675,6 +798,7 @@ function changePage(d){currentPage=Math.max(1,Math.min(Math.ceil(filteredRows.le
 
 /* Modal */
 function openDiffModal(it){
+  _siteModalRows=[]; // reset site list mode
   _modalAllRows=[];
   (it.mainOnlySites||[]).forEach(s=>_modalAllRows.push({...s,_side:'main'}));
   (it.itOnlySites||[]).forEach(s=>_modalAllRows.push({...s,_side:'it'}));
@@ -690,7 +814,14 @@ function _escClose(e){if(e.key==='Escape')closeModal();}
 function closeModal(){$('modal-overlay').classList.remove('open');document.removeEventListener('keydown',_escClose);}
 function filterModal(){
   const q=$('modal-search').value.toLowerCase().trim();
-  renderModalList(_modalAllRows.filter(s=>Object.values(s).some(v=>String(v).toLowerCase().includes(q))));
+  if(_siteModalRows.length){
+    // site list modal mode
+    const filtered=_siteModalRows.filter(s=>Object.values(s).some(v=>String(v).toLowerCase().includes(q)));
+    renderSiteModalList(filtered);
+  } else {
+    // diff modal mode
+    renderModalList(_modalAllRows.filter(s=>Object.values(s).some(v=>String(v).toLowerCase().includes(q))));
+  }
 }
 function renderModalList(rows){
   const main=rows.filter(r=>r._side==='main'), it=rows.filter(r=>r._side==='it');
@@ -734,7 +865,7 @@ function renderDashboard(data){
   renderDonutChart(data.donut);
   if(data.itSummary?.enabled){
     renderITSection(data.itSummary);
-    $('it-section').closest?.(null); // always show
+    renderClickableCards(data.itSummary);
     renderITPieChart(data.itSummary);
   }
   if(data.itMonthChart)renderITMonthChart(data.itMonthChart);
