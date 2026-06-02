@@ -357,6 +357,45 @@ tbody td{padding:10px 14px;border-bottom:1px solid #f1f5f9;color:var(--text);whi
     </div>
 
     <!-- §6 SITE TABLE WITH CAT FILTERS -->
+    <!-- AGED SITES SECTION -->
+    <div style="margin-bottom:28px">
+      <div class="sec-label sec-it">&#128344; Aged Sites — Under IT/RFIT &amp; Not Yet Accepted</div>
+      <div class="sec-hr"></div>
+
+      <!-- KPI row -->
+      <div class="row cols-3" id="aged-kpi-row" style="margin-bottom:16px"></div>
+
+      <!-- Chart + summary -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="card">
+          <p style="font-size:13px;font-weight:700;margin-bottom:4px;color:var(--text)">Aging Distribution — Days Since IT/RFIT</p>
+          <p style="font-size:11px;color:var(--muted);margin-bottom:14px">Aged = today − RFIT date · sites not yet accepted · click any bar</p>
+          <div style="height:220px"><canvas id="agedChart"></canvas></div>
+        </div>
+        <div class="card">
+          <p style="font-size:13px;font-weight:700;margin-bottom:14px;color:var(--text)">Summary by Bucket</p>
+          <div id="aged-summary-list"></div>
+        </div>
+      </div>
+
+      <!-- Table with filter buttons -->
+      <div class="card-flat">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+          <div>
+            <h3 style="font-size:14px;font-weight:700">Aged Sites Table</h3>
+            <p id="aged-table-label" style="font-size:11px;color:var(--muted);margin-top:2px">—</p>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap" id="aged-filter-btns"></div>
+        </div>
+        <div class="tbl-wrap" style="max-height:380px">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead id="aged-table-head"></thead>
+            <tbody id="aged-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- AGING SECTION -->
     <div style="margin-bottom:28px">
       <div class="sec-label sec-main">&#9200; Aging Distribution — Submitted Sites</div>
@@ -907,6 +946,7 @@ function renderDashboard(data){
   }
   if(data.itMonthChart)renderITMonthChart(data.itMonthChart);
   if(data.regionBreakdown?.labels?.length)renderRegionChart(data.regionBreakdown);
+  if(data.agedSites)renderAgedSection(data.agedSites);
   allRows=data.table.rows; filteredRows=[...allRows];
   renderTableHeader(data.table.columns);
   buildSsvChips(allRows);
@@ -1064,6 +1104,186 @@ function openSubmittedModal(tech){
 function makeKPIClickable(){
   // The data for each KPI tile comes from table rows filtered by category/status
   // Wire up each KPI after renderDashboard sets the values
+}
+
+/* Aged Sites — management dashboard */
+let _agedDataM=null, _agedChartM=null, _agedFilterM='All';
+const AGED_KEYS=['0-30','31-60','61-90','91-180','180+'];
+const AGED_LABELS=['0–30 days','31–60 days','61–90 days','91–180 days','180+ days'];
+const AGED_COLS=['#10b981','#6366f1','#f59e0b','#ef4444','#7c3aed'];
+
+function renderAgedSection(agedData){
+  if(!agedData)return;
+  _agedDataM=agedData;
+
+  // KPI row
+  const kpiEl=$('aged-kpi-row');
+  if(kpiEl){
+    const all=agedData.allSites||[];
+    const withSub=all.filter(s=>s.ssvSubDate).length;
+    const noSub=all.filter(s=>!s.ssvSubDate).length;
+    kpiEl.innerHTML=[
+      {label:'Total Aged Sites', val:agedData.total, sub:'Under IT/RFIT · not accepted', col:'#ef4444', icon:'⏰',
+       click:`openAgedModalM('All Sites',_agedDataM.allSites||[])`},
+      {label:'With SSV Submission', val:agedData.withSubmission, sub:'Submitted · pending acceptance', col:'#f59e0b', icon:'📝',
+       click:`openAgedModalM('Submitted — Pending',(_agedDataM.allSites||[]).filter(s=>s.ssvSubDate))`},
+      {label:'No Submission Yet', val:agedData.noSubmission, sub:'RFIT done · no SSV yet', col:'#7c3aed', icon:'🚫',
+       click:`openAgedModalM('No SSV Submission',(_agedDataM.allSites||[]).filter(s=>!s.ssvSubDate))`},
+    ].map(k=>`<div class="card kpi" style="cursor:pointer;background:linear-gradient(135deg,${k.col}12,${k.col}06);border:1.5px solid ${k.col}33" onclick="${k.click}">
+      <span style="font-size:22px">${k.icon}</span>
+      <div style="font-size:28px;font-weight:800;color:${k.col};letter-spacing:-1px">${k.val}</div>
+      <div style="font-size:12px;font-weight:600;color:var(--text)">${k.label}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">${k.sub}</div>
+    </div>`).join('');
+  }
+
+  // Chart
+  const canvas=$('agedChart');
+  if(canvas){
+    if(_agedChartM)_agedChartM.destroy();
+    const data=AGED_KEYS.map(k=>agedData.buckets[k]?.count||0);
+    _agedChartM=new Chart(canvas.getContext('2d'),{
+      type:'bar',
+      data:{labels:AGED_LABELS,datasets:[{
+        label:'Aged Sites',data,
+        backgroundColor:AGED_COLS.map(c=>c+'cc'),borderColor:AGED_COLS,
+        borderWidth:2,borderRadius:10,borderSkipped:false,hoverBackgroundColor:AGED_COLS
+      }]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},
+          tooltip:{callbacks:{label:i=>i.raw+' sites'},
+            backgroundColor:'rgba(15,23,42,.88)',titleColor:'#f1f5f9',bodyColor:'#94a3b8',padding:12,cornerRadius:8}},
+        scales:{x:{grid:{display:false},ticks:{color:'#64748b',font:{size:11}}},
+                y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{color:'#64748b',font:{size:11}},beginAtZero:true}},
+        onClick(evt,elements){
+          if(!elements.length)return;
+          const key=AGED_KEYS[elements[0].index];
+          openAgedModalM(AGED_LABELS[elements[0].index], agedData.buckets[key]?.sites||[]);
+        }
+      }
+    });
+  }
+
+  // Summary list
+  const sumEl=$('aged-summary-list');
+  if(sumEl){
+    const total=agedData.total||1;
+    sumEl.innerHTML=AGED_KEYS.map((k,i)=>{
+      const n=agedData.buckets[k]?.count||0;
+      const pct=Math.round(n/total*100);
+      return `<div onclick="openAgedModalM('${AGED_LABELS[i]}',_agedDataM.buckets['${k}']?.sites||[])"
+        style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:8px;margin-bottom:7px;cursor:pointer;border:1px solid var(--border);transition:background .15s"
+        onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:10px;height:10px;border-radius:50%;background:${AGED_COLS[i]}"></div>
+          <span style="font-size:12px;font-weight:600;color:var(--text)">${AGED_LABELS[i]}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:20px;font-weight:800;color:${AGED_COLS[i]}">${n}</span>
+          <span style="font-size:10px;color:var(--muted);background:#f1f5f9;padding:2px 6px;border-radius:6px">${pct}%</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Table
+  renderAgedTableM('All');
+}
+
+function renderAgedTableM(filter){
+  _agedFilterM=filter;
+  const all=(_agedDataM?.allSites||[]);
+  const sites=filter==='All'?all:
+               filter==='Submitted'?all.filter(s=>s.ssvSubDate):
+               all.filter(s=>!s.ssvSubDate);
+  const sorted=[...sites].sort((a,b)=>b.agingDays-a.agingDays);
+
+  // Buttons
+  const btnsEl=$('aged-filter-btns');
+  if(btnsEl) btnsEl.innerHTML=[
+    {k:'All',l:`All (${all.length})`},
+    {k:'Submitted',l:`Submitted (${all.filter(s=>s.ssvSubDate).length})`},
+    {k:'Not Submitted',l:`No Sub (${all.filter(s=>!s.ssvSubDate).length})`}
+  ].map(b=>{
+    const a=b.k===filter;
+    return `<button onclick="renderAgedTableM('${b.k}')" style="padding:5px 13px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid ${a?'var(--purple)':'var(--border)'};background:${a?'var(--purple)':'#fff'};color:${a?'#fff':'var(--muted)'};">${b.l}</button>`;
+  }).join('');
+
+  const lbl=$('aged-table-label');
+  if(lbl)lbl.textContent=sorted.length+' site'+(sorted.length!==1?'s':'')+' · sorted by aging (oldest first)';
+
+  const CAT_COLOR={A:'#f59e0b',B:'#6366f1',C:'#ef4444',D:'#0ea5e9'};
+  const thS='padding:10px 13px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1.5px solid var(--border);white-space:nowrap;background:#f8faff;position:sticky;top:0;';
+  const tdS='padding:10px 13px;border-bottom:1px solid #f1f5f9;font-size:12px;';
+
+  const head=$('aged-table-head');
+  if(head) head.innerHTML='<tr>'+['#','Site ID','Governate','City','Activity','CAT','RFIT Date','Aging (Days)','SSV Sub Date','Status'].map(h=>`<th style="${thS}">${h}</th>`).join('')+'</tr>';
+
+  const body=$('aged-table-body');
+  if(!body)return;
+  if(!sorted.length){
+    body.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:36px;color:var(--muted);font-size:13px">No sites in this filter.</td></tr>`;
+    return;
+  }
+  body.innerHTML=sorted.map((s,i)=>{
+    const days=s.agingDays;
+    const ageCol=days<=30?'#10b981':days<=60?'#f59e0b':'#ef4444';
+    const catCol=CAT_COLOR[s.cat]||'#94a3b8';
+    const subCol=s.ssvSubDate?'#10b981':'#94a3b8';
+    return `<tr style="cursor:pointer;transition:background .1s" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''" onclick="navigator.clipboard&&navigator.clipboard.writeText('${s.id}');this.style.background='#d1fae5'">
+      <td style="${tdS}color:#94a3b8">${i+1}</td>
+      <td style="${tdS}font-weight:700;color:#4338ca;font-family:monospace;font-size:13px">${s.id}</td>
+      <td style="${tdS}">${s.gov}</td>
+      <td style="${tdS}color:var(--muted)">${s.city}</td>
+      <td style="${tdS}color:var(--muted)">${s.activity}</td>
+      <td style="${tdS}"><span style="background:${catCol}22;color:${catCol};padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700">CAT ${s.cat}</span></td>
+      <td style="${tdS}color:var(--muted);font-size:11px">${s.rfitDate}</td>
+      <td style="${tdS}text-align:center"><span style="font-size:18px;font-weight:800;color:${ageCol}">${days}</span><span style="color:#94a3b8;font-size:10px"> d</span></td>
+      <td style="${tdS}color:var(--muted);font-size:11px">${s.ssvSubDate||'—'}</td>
+      <td style="${tdS}"><span style="background:${subCol}22;color:${subCol};padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700">${s.ssvSubStatus}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function openAgedModalM(label, sites){
+  if(!sites||!sites.length){alert('No sites in this group.');return;}
+  _siteModalRows=[]; _modalAllRows=[];
+  $('modal-title').textContent='Aged Sites — '+label;
+  $('modal-subtitle').textContent=sites.length+' site'+(sites.length!==1?'s':'')+' · Under IT/RFIT · not yet accepted · click to copy ID';
+  $('modal-search').value='';
+
+  const CAT_COLOR={A:'#f59e0b',B:'#6366f1',C:'#ef4444',D:'#0ea5e9'};
+  $('modal-counts').innerHTML=`<span class="count-pill" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5">${sites.length} aged site${sites.length!==1?'s':''}</span>`;
+
+  const sorted=[...sites].sort((a,b)=>b.agingDays-a.agingDays);
+  const thS='padding:9px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1.5px solid var(--border);background:#f8faff;white-space:nowrap;';
+  const tdS='padding:9px 12px;border-bottom:1px solid #f1f5f9;font-size:12px;';
+
+  let html=`<table style="width:100%;border-collapse:collapse"><thead><tr>
+    ${['#','Site ID','Gov / City','Activity','CAT','RFIT Date','Aging','SSV Sub Date','Status'].map(h=>`<th style="${thS}">${h}</th>`).join('')}
+  </tr></thead><tbody>`;
+
+  sorted.forEach((s,i)=>{
+    const days=s.agingDays;
+    const ageCol=days<=30?'#10b981':days<=60?'#f59e0b':'#ef4444';
+    const catCol=CAT_COLOR[s.cat]||'#94a3b8';
+    const subCol=s.ssvSubDate?'#10b981':'#94a3b8';
+    html+=`<tr style="cursor:pointer;transition:background .1s" onmouseover="this.style.background='#f0f4ff'" onmouseout="this.style.background=''" onclick="navigator.clipboard&&navigator.clipboard.writeText('${s.id}');this.style.background='#d1fae5'">
+      <td style="${tdS}color:#94a3b8">${i+1}</td>
+      <td style="${tdS}font-weight:700;color:#4338ca;font-family:monospace;font-size:13px">${s.id}</td>
+      <td style="${tdS}color:var(--muted);font-size:11px">${s.gov}${s.city?' · '+s.city:''}</td>
+      <td style="${tdS}color:var(--muted)">${s.activity}</td>
+      <td style="${tdS}"><span style="background:${catCol}22;color:${catCol};padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700">CAT ${s.cat}</span></td>
+      <td style="${tdS}color:var(--muted);font-size:11px">${s.rfitDate}</td>
+      <td style="${tdS}text-align:center"><span style="font-size:18px;font-weight:800;color:${ageCol}">${days}</span><span style="color:#94a3b8;font-size:10px"> d</span></td>
+      <td style="${tdS}color:var(--muted);font-size:11px">${s.ssvSubDate||'—'}</td>
+      <td style="${tdS}"><span style="background:${subCol}22;color:${subCol};padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700">${s.ssvSubStatus}</span></td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  $('modal-list').innerHTML=html;
+  $('modal-overlay').classList.add('open');
+  document.addEventListener('keydown',_escClose);
 }
 
 /* Load */
