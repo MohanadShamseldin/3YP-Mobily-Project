@@ -8,46 +8,35 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
-<script>
-tailwind.config={theme:{extend:{fontFamily:{display:['Sora','sans-serif'],body:['DM Sans','sans-serif']}}}}
-</script>
+<script>tailwind.config={theme:{extend:{fontFamily:{display:['Sora','sans-serif'],body:['DM Sans','sans-serif']}}}}</script>
 <style>
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;background:#060918;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:radial-gradient(ellipse 80% 60% at 10% 10%,rgba(99,102,241,.18) 0%,transparent 60%),
-             radial-gradient(ellipse 60% 50% at 90% 80%,rgba(16,185,129,.12) 0%,transparent 55%),
-             radial-gradient(ellipse 50% 40% at 50% 40%,rgba(59,130,246,.08) 0%,transparent 50%)}
+             radial-gradient(ellipse 60% 50% at 90% 80%,rgba(16,185,129,.12) 0%,transparent 55%)}
 #app{position:relative;z-index:1}
 .glass{background:rgba(15,23,42,.65);backdrop-filter:blur(18px) saturate(160%);border:1px solid rgba(255,255,255,.07);border-radius:16px}
-.kpi-card{transition:transform .25s,box-shadow .25s;cursor:default}
+.kpi-card{transition:transform .25s,box-shadow .25s}
 .kpi-card:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(99,102,241,.15)}
 .accent-line{height:2px;background:linear-gradient(90deg,#6366f1,#10b981,#3b82f6);border-radius:2px}
-
-/* Section header */
 .section-tag{display:inline-flex;align-items:center;gap:6px;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
 .tag-main{background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.25)}
 .tag-it{background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.25)}
-
-/* Status badges */
 .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:600}
 .badge-green{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.25)}
 .badge-blue{background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.25)}
 .badge-amber{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.25)}
 .badge-gray{background:rgba(148,163,184,.1);color:#94a3b8;border:1px solid rgba(148,163,184,.15)}
-
-/* Difference pill */
-.diff-pill{display:inline-flex;align-items:center;padding:4px 14px;border-radius:999px;font-size:22px;font-weight:700;cursor:default}
+.diff-pill{display:inline-flex;align-items:center;padding:6px 20px;border-radius:999px;font-size:26px;font-weight:700;transition:transform .2s,box-shadow .2s}
+.diff-pill.clickable{cursor:pointer}
+.diff-pill.clickable:hover{transform:scale(1.08);box-shadow:0 0 24px rgba(239,68,68,.3)}
 .diff-zero{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.2)}
 .diff-pos{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.2)}
 .diff-neg{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2)}
-
-/* Progress bar */
 .prog-track{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
 .prog-fill{height:100%;border-radius:3px;transition:width .8s ease}
-
-/* Spinner & skeleton */
 .spinner{width:36px;height:36px;border-radius:50%;border:3px solid rgba(99,102,241,.2);border-top-color:#6366f1;animation:spin .7s linear infinite}
 .skeleton{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -55,28 +44,38 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .fade-in{opacity:0;transform:translateY(10px);animation:fadeUp .4s ease forwards}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
 .d1{animation-delay:.06s}.d2{animation-delay:.12s}.d3{animation-delay:.18s}.d4{animation-delay:.24s}.d5{animation-delay:.3s}
-
-/* Refresh btn */
 #refresh-btn{background:linear-gradient(135deg,#6366f1,#4f46e5);border:1px solid rgba(255,255,255,.12);transition:all .2s}
 #refresh-btn:hover:not(:disabled){background:linear-gradient(135deg,#818cf8,#6366f1);box-shadow:0 0 20px rgba(99,102,241,.4);transform:translateY(-1px)}
 #refresh-btn:disabled{opacity:.55;cursor:not-allowed}
 #refresh-btn.loading .btn-spin{animation:spin .6s linear infinite}
-
-/* Error banner */
 #error-banner{display:none}
 #error-banner.visible{display:flex}
-
-/* Table */
 #data-table th{cursor:pointer;user-select:none;white-space:nowrap}
 #data-table th:hover{color:#a5b4fc}
 #data-table tbody tr{transition:background .15s}
 #data-table tbody tr:hover{background:rgba(99,102,241,.07)}
 .sort-icon{display:inline-block;margin-left:4px;opacity:.35;font-size:10px}
 .sort-icon.active{opacity:1;color:#818cf8}
-
-/* Filter chip */
 .filter-chip{border:1px solid rgba(255,255,255,.1);border-radius:8px;background:rgba(255,255,255,.04);padding:5px 12px;font-size:12px;cursor:pointer;transition:all .2s;color:#94a3b8}
 .filter-chip:hover,.filter-chip.active{background:rgba(99,102,241,.18);border-color:#6366f1;color:#c7d2fe}
+
+/* ── MODAL ── */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px}
+#modal-overlay.open{display:flex}
+#modal-box{background:#0f172a;border:1px solid rgba(255,255,255,.1);border-radius:20px;width:100%;max-width:760px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+#modal-header{padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0}
+#modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+#modal-close{background:rgba(255,255,255,.06);border:none;color:#94a3b8;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+#modal-close:hover{background:rgba(255,255,255,.12);color:#e2e8f0}
+.modal-site-row{display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02);margin-bottom:6px;font-size:12px}
+.modal-site-row:hover{background:rgba(99,102,241,.07);border-color:rgba(99,102,241,.2)}
+.modal-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.04em}
+.badge-main{background:rgba(99,102,241,.15);color:#a5b4fc}
+.badge-iton{background:rgba(16,185,129,.15);color:#6ee7b7}
+.modal-search{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#e2e8f0;padding:7px 12px;font-size:13px;outline:none;width:100%;margin-bottom:12px}
+.modal-search:focus{border-color:#6366f1}
+.modal-tab{padding:6px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;border:1px solid transparent;color:#94a3b8}
+.modal-tab.active{background:rgba(99,102,241,.2);border-color:#6366f1;color:#c7d2fe}
 
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-thumb{background:rgba(99,102,241,.35);border-radius:3px}
@@ -88,11 +87,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   <!-- HEADER -->
   <header class="fade-in flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-           style="background:linear-gradient(135deg,#6366f1,#10b981)">
-        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.5l4-4 4 4 4-5 4 4"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 20h18M3 4h18"/>
-        </svg>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:linear-gradient(135deg,#6366f1,#10b981)">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.5l4-4 4 4 4-5 4 4"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 20h18M3 4h18"/></svg>
       </div>
       <div>
         <h1 id="dash-title" class="font-display text-xl font-bold text-white" style="font-weight:700;letter-spacing:-.02em">Loading…</h1>
@@ -105,9 +101,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         Updated: <strong id="last-updated" class="text-slate-200">—</strong>
       </div>
       <button id="refresh-btn" onclick="loadData()" class="flex items-center gap-2 text-white text-sm px-4 py-2 rounded-xl" style="font-weight:600">
-        <svg class="w-4 h-4 btn-spin" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M20.49 9A9 9 0 005.64 5.64L4 4M3.51 15a9 9 0 0014.85 3.36L20 20"/>
-        </svg>
+        <svg class="w-4 h-4 btn-spin" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M20.49 9A9 9 0 005.64 5.64L4 4M3.51 15a9 9 0 0014.85 3.36L20 20"/></svg>
         Refresh
       </button>
     </div>
@@ -115,35 +109,26 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
   <div class="accent-line w-full fade-in d1"></div>
 
-  <!-- ERROR BANNER -->
+  <!-- ERROR -->
   <div id="error-banner" class="glass border border-red-500/20 rounded-2xl p-5 items-center gap-4 text-sm">
     <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
       <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4m0 4h.01"/></svg>
     </div>
-    <div>
-      <p class="text-red-300 font-semibold">Unable to load data</p>
-      <p id="error-msg" class="text-slate-400 mt-0.5">—</p>
-    </div>
+    <div><p class="text-red-300 font-semibold">Unable to load data</p><p id="error-msg" class="text-slate-400 mt-0.5">—</p></div>
     <button onclick="loadData()" class="ml-auto text-xs px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 hover:bg-red-500/20 transition-colors">Try again</button>
   </div>
 
   <!-- SKELETONS -->
-  <div id="sk-kpi" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
-    <div class="glass h-28 skeleton"></div><div class="glass h-28 skeleton"></div>
-    <div class="glass h-28 skeleton"></div><div class="glass h-28 skeleton"></div>
-    <div class="glass h-28 skeleton"></div><div class="glass h-28 skeleton"></div>
-  </div>
-  <div id="sk-it" class="glass h-48 skeleton"></div>
-  <div id="sk-charts" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="glass lg:col-span-2 h-64 skeleton"></div><div class="glass h-64 skeleton"></div>
-  </div>
-  <div id="sk-region" class="glass h-64 skeleton"></div>
+  <div id="sk-kpi"    class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4"><div class="glass h-28 skeleton"></div><div class="glass h-28 skeleton"></div><div class="glass h-28 skeleton"></div><div class="glass h-28 skeleton"></div><div class="glass h-28 skeleton"></div><div class="glass h-28 skeleton"></div></div>
+  <div id="sk-it"    class="glass h-52 skeleton"></div>
+  <div id="sk-charts"class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="glass lg:col-span-2 h-64 skeleton"></div><div class="glass h-64 skeleton"></div></div>
+  <div id="sk-region"class="glass h-72 skeleton"></div>
   <div id="sk-table" class="glass h-72 skeleton"></div>
 
   <!-- MAIN CONTENT -->
   <div id="main-content" class="hidden space-y-8">
 
-    <!-- ══ SECTION 1: MAIN PROJECT KPIs ══ -->
+    <!-- §1 MAIN KPIs -->
     <section class="fade-in d1">
       <div class="flex items-center gap-3 mb-4">
         <span class="section-tag tag-main">Main Project</span>
@@ -152,48 +137,44 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div id="kpi-main" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4"></div>
     </section>
 
-    <!-- ══ SECTION 2: IT ACCEPTANCE (star of the show) ══ -->
+    <!-- §2 IT ACCEPTANCE — star of the show -->
     <section id="it-section" class="fade-in d2">
       <div class="flex items-center gap-3 mb-4">
         <span class="section-tag tag-it">IT Acceptance</span>
         <div class="flex-1 h-px" style="background:rgba(255,255,255,.06)"></div>
       </div>
 
-      <!-- IT formula card -->
+      <!-- formula card -->
       <div class="glass p-6 mb-4">
-        <p class="text-slate-400 text-xs uppercase tracking-widest font-semibold mb-5">Combined IT Acceptance Formula</p>
-        <div class="flex flex-wrap items-center justify-center gap-3 text-center">
-          <!-- 5G -->
+        <p class="text-slate-500 text-xs uppercase tracking-widest font-semibold mb-5">Combined IT Acceptance Formula</p>
+        <div class="flex flex-wrap items-center justify-center gap-4 text-center">
           <div class="flex flex-col items-center gap-1">
             <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">5G Accepted</p>
             <p id="it-5g-val" class="font-display text-3xl font-bold" style="font-weight:700;color:#818cf8">—</p>
-            <p id="it-5g-sub" class="text-xs text-slate-500">— in 5G tab</p>
+            <p id="it-5g-sub" class="text-xs text-slate-500">—</p>
           </div>
-          <p class="text-2xl text-slate-600 font-light">+</p>
-          <!-- 4G Only -->
+          <p class="text-2xl text-slate-600 font-light select-none">+</p>
           <div class="flex flex-col items-center gap-1">
             <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">4G-Only Accepted</p>
             <p id="it-4g-val" class="font-display text-3xl font-bold" style="font-weight:700;color:#fbbf24">—</p>
             <p class="text-xs text-slate-500">Not in 5G tab</p>
           </div>
-          <p class="text-2xl text-slate-600 font-light">=</p>
-          <!-- Combined -->
+          <p class="text-2xl text-slate-600 font-light select-none">=</p>
           <div class="glass flex flex-col items-center gap-1 px-6 py-3 rounded-xl">
             <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">IT Combined</p>
             <p id="it-comb-val" class="font-display text-3xl font-bold text-white" style="font-weight:700">—</p>
           </div>
-          <p class="text-xl text-slate-600">vs</p>
-          <!-- Main SSV -->
+          <p class="text-xl text-slate-600 select-none">vs</p>
           <div class="glass flex flex-col items-center gap-1 px-6 py-3 rounded-xl">
             <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Main SSV Final</p>
             <p id="it-main-val" class="font-display text-3xl font-bold" style="font-weight:700;color:#60a5fa">—</p>
           </div>
-          <p class="text-2xl text-slate-600 font-light">=</p>
-          <!-- Difference -->
+          <p class="text-2xl text-slate-600 font-light select-none">=</p>
           <div class="flex flex-col items-center gap-1">
             <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Difference</p>
-            <span id="it-diff-pill" class="diff-pill">—</span>
+            <span id="it-diff-pill" class="diff-pill" title="Click to see mismatch sites">—</span>
             <p id="it-diff-label" class="text-xs text-slate-500 mt-1">—</p>
+            <p id="it-diff-hint" class="text-xs text-slate-600 mt-0.5" style="display:none">↑ click to drill down</p>
           </div>
         </div>
       </div>
@@ -202,7 +183,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="it-kpi-detail"></div>
     </section>
 
-    <!-- ══ SECTION 3: PROGRESS BARS ══ -->
+    <!-- §3 PROGRESS -->
     <section class="fade-in d3">
       <div class="flex items-center gap-3 mb-4">
         <span class="section-tag tag-main">Progress Breakdown</span>
@@ -211,7 +192,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="glass p-6 grid grid-cols-1 sm:grid-cols-2 gap-6" id="progress-section"></div>
     </section>
 
-    <!-- ══ SECTION 4: CHARTS ══ -->
+    <!-- §4 CHARTS -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in d3">
       <div class="glass p-6 lg:col-span-2">
         <p id="chart-title" class="font-display text-sm font-semibold text-slate-200 mb-4"></p>
@@ -219,24 +200,20 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       </div>
       <div class="glass p-6">
         <p id="donut-title" class="font-display text-sm font-semibold text-slate-200 mb-4"></p>
-        <div style="height:220px;display:flex;align-items:center;justify-content:center">
-          <canvas id="donutChart"></canvas>
-        </div>
+        <div style="height:220px;display:flex;align-items:center;justify-content:center"><canvas id="donutChart"></canvas></div>
       </div>
     </div>
 
-    <!-- ══ SECTION 5: REGION CHART ══ -->
+    <!-- §5 REGION -->
     <section class="fade-in d4">
       <div class="flex items-center gap-3 mb-4">
         <span class="section-tag tag-it">Acceptance by Region</span>
         <div class="flex-1 h-px" style="background:rgba(255,255,255,.06)"></div>
       </div>
-      <div class="glass p-6">
-        <div style="height:300px"><canvas id="regionChart"></canvas></div>
-      </div>
+      <div class="glass p-6"><div style="height:300px"><canvas id="regionChart"></canvas></div></div>
     </section>
 
-    <!-- ══ SECTION 6: SITE TABLE ══ -->
+    <!-- §6 TABLE -->
     <section class="glass p-6 fade-in d5">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
@@ -246,18 +223,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <div class="flex flex-wrap gap-2 items-center">
           <div class="relative">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/></svg>
-            <input id="search-input" type="text" placeholder="Search sites…" oninput="applyFilters()"
-              class="bg-white/5 border rounded-xl pl-9 pr-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none w-44 transition-colors"
-              style="border-color:rgba(255,255,255,.08)"/>
+            <input id="search-input" type="text" placeholder="Search sites…" oninput="applyFilters()" class="bg-white/5 border rounded-xl pl-9 pr-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none w-44 transition-colors" style="border-color:rgba(255,255,255,.08)"/>
           </div>
           <div id="filter-chips" class="flex flex-wrap gap-2"></div>
         </div>
       </div>
       <div class="overflow-x-auto rounded-xl" style="max-height:380px;overflow-y:auto">
         <table id="data-table" class="w-full text-sm">
-          <thead class="sticky top-0 z-10" style="background:rgba(15,23,42,.95);backdrop-filter:blur(8px)">
-            <tr id="table-header"></tr>
-          </thead>
+          <thead class="sticky top-0 z-10" style="background:rgba(15,23,42,.95);backdrop-filter:blur(8px)"><tr id="table-header"></tr></thead>
           <tbody id="table-body" class="divide-y divide-white/5"></tbody>
         </table>
       </div>
@@ -270,334 +243,242 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       </div>
     </section>
 
-    <footer class="text-center text-xs text-slate-600 pb-4">
-      Management Dashboard · Data refreshes on page load · Powered by Chart.js
-    </footer>
+    <footer class="text-center text-xs text-slate-600 pb-4">Management Dashboard · Data refreshes on page load · Click the difference number to drill down into mismatches</footer>
+  </div>
+</div>
+
+<!-- ══ DRILL-DOWN MODAL ══ -->
+<div id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div id="modal-box">
+    <div id="modal-header">
+      <div>
+        <h3 id="modal-title" class="text-white font-semibold text-base" style="font-weight:600"></h3>
+        <p id="modal-subtitle" class="text-slate-400 text-xs mt-1"></p>
+      </div>
+      <button id="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modal-body">
+      <!-- tabs -->
+      <div id="modal-tabs" class="flex gap-2 mb-4" style="display:none!important"></div>
+      <!-- search -->
+      <input id="modal-search" class="modal-search" type="text" placeholder="Search site ID, region, city…" oninput="filterModal()"/>
+      <!-- counts -->
+      <div id="modal-counts" class="flex gap-3 mb-4 text-xs text-slate-400"></div>
+      <!-- list -->
+      <div id="modal-list"></div>
+    </div>
   </div>
 </div>
 
 <script>
-/*
- ══════════════════════════════════════════════════════════════
-   REQUIRED data.json structure — export from mobily_dashboard.html
-   after loading both Excel files, then click "Export JSON for GitHub"
- ══════════════════════════════════════════════════════════════
-*/
-const DATA_URL  = './data.json';
-const ROWS_PER_PAGE = 10;
+const DATA_URL='./data.json', ROWS_PER_PAGE=10;
+let allRows=[],filteredRows=[],sortColIdx=-1,sortAsc=true,currentPage=1,activeFilter='All';
+let lineChartInst=null,donutChartInst=null,regionChartInst=null;
+let _itData=null; // stored for modal
 
-let allRows=[], filteredRows=[], sortColIdx=-1, sortAsc=true, currentPage=1, activeFilter='All';
-let lineChartInst=null, donutChartInst=null, regionChartInst=null;
-
-const ICONS = {
-  tower: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.14 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>`,
-  check: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>`,
-  gauge: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 110 20A10 10 0 0112 2zm0 0v4m0 8l-4-4"/></svg>`,
-  clock: `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 6v6l4 2"/></svg>`,
+const ICONS={
+  tower:`<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.14 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>`,
+  check:`<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/></svg>`,
+  gauge:`<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 110 20A10 10 0 0112 2zm0 0v4m0 8l-4-4"/></svg>`,
+  clock:`<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 6v6l4 2"/></svg>`,
   server:`<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>`,
   signal:`<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M1 6c0 0 5-2 11-2s11 2 11 2M5 10c0 0 3-1 7-1s7 1 7 1m-9 4h4m-2 4h.01"/></svg>`
 };
 const KPI_COLORS=[
-  {bg:'rgba(99,102,241,.12)', icon:'#818cf8'},
-  {bg:'rgba(16,185,129,.12)', icon:'#34d399'},
-  {bg:'rgba(16,185,129,.12)', icon:'#34d399'},
-  {bg:'rgba(245,158,11,.12)', icon:'#fbbf24'},
-  {bg:'rgba(59,130,246,.12)', icon:'#60a5fa'},
-  {bg:'rgba(168,85,247,.12)', icon:'#c084fc'},
+  {bg:'rgba(99,102,241,.12)',icon:'#818cf8'},{bg:'rgba(16,185,129,.12)',icon:'#34d399'},
+  {bg:'rgba(16,185,129,.12)',icon:'#34d399'},{bg:'rgba(245,158,11,.12)',icon:'#fbbf24'},
+  {bg:'rgba(59,130,246,.12)',icon:'#60a5fa'},{bg:'rgba(168,85,247,.12)',icon:'#c084fc'}
 ];
 
-function fmtDate(iso){
-  try{return new Date(iso).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch{return iso;}
-}
-function fmtNum(n,unit){
-  const f=typeof n==='number'?(Number.isInteger(n)?n.toLocaleString():n.toFixed(1)):n;
-  return unit==='%'?f+'%':f;
-}
-function pct(n,total){return total?Math.round(n/total*100):0;}
-
-function setLoading(on){
-  ['sk-kpi','sk-it','sk-charts','sk-region','sk-table'].forEach(id=>{
-    document.getElementById(id).classList.toggle('hidden',!on);
-  });
-  document.getElementById('main-content').classList.toggle('hidden',on);
-  const btn=document.getElementById('refresh-btn');
-  btn.disabled=on; btn.classList.toggle('loading',on);
-}
-function showError(msg){
-  document.getElementById('error-msg').textContent=msg;
-  document.getElementById('error-banner').classList.add('visible');
-}
+function fmtDate(iso){try{return new Date(iso).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch{return iso;}}
+function fmtNum(n,u){const f=typeof n==='number'?(Number.isInteger(n)?n.toLocaleString():n.toFixed(1)):n;return u==='%'?f+'%':f;}
+function pct(n,t){return t?Math.round(n/t*100):0;}
+function setLoading(on){['sk-kpi','sk-it','sk-charts','sk-region','sk-table'].forEach(id=>document.getElementById(id).classList.toggle('hidden',!on));document.getElementById('main-content').classList.toggle('hidden',on);const btn=document.getElementById('refresh-btn');btn.disabled=on;btn.classList.toggle('loading',on);}
+function showError(m){document.getElementById('error-msg').textContent=m;document.getElementById('error-banner').classList.add('visible');}
 function hideError(){document.getElementById('error-banner').classList.remove('visible');}
+function statusBadge(v){const s=String(v).toLowerCase();if(s==='accepted'||s==='yes')return`<span class="badge badge-green">${v}</span>`;if(s==='submitted')return`<span class="badge badge-blue">${v}</span>`;if(s==='pending')return`<span class="badge badge-amber">${v}</span>`;if(s==='no')return`<span class="badge badge-gray">${v}</span>`;return`<span class="text-slate-300">${v}</span>`;}
 
-function statusBadge(v){
-  const s=String(v).toLowerCase();
-  if(s==='accepted'||s==='yes') return `<span class="badge badge-green">${v}</span>`;
-  if(s==='submitted')           return `<span class="badge badge-blue">${v}</span>`;
-  if(s==='pending')             return `<span class="badge badge-amber">${v}</span>`;
-  if(s==='no')                  return `<span class="badge badge-gray">${v}</span>`;
-  return `<span class="text-slate-300">${v}</span>`;
-}
-
-/* ── KPIs ─────────────────────────────────────────── */
+/* ── KPIs ── */
 function renderKPIs(kpis){
-  document.getElementById('kpi-main').innerHTML=kpis.map((k,i)=>{
-    const c=KPI_COLORS[i%KPI_COLORS.length];
-    const up=k.trend==='up';
-    return `<div class="glass kpi-card p-5 flex flex-col gap-3">
-      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:${c.bg};color:${c.icon}">${ICONS[k.icon]||ICONS.check}</div>
-      <div>
-        <p class="font-display text-2xl font-bold text-white" style="font-weight:700;letter-spacing:-.02em">${fmtNum(k.value,k.unit)}</p>
-        <p class="text-slate-400 text-xs mt-1">${k.label}</p>
-      </div>
-      <div class="${up?'text-emerald-400':'text-red-400'} text-xs font-semibold flex gap-1">
-        <span>${up?'↑':'↓'} ${Math.abs(k.change)}%</span><span class="text-slate-600 font-normal">vs prev.</span>
-      </div>
-    </div>`;
-  }).join('');
-}
+  document.getElementById('kpi-main').innerHTML=kpis.map((k,i)=>{const c=KPI_COLORS[i%6],up=k.trend==='up';return`<div class="glass kpi-card p-5 flex flex-col gap-3"><div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:${c.bg};color:${c.icon}">${ICONS[k.icon]||ICONS.check}</div><div><p class="font-display text-2xl font-bold text-white" style="font-weight:700;letter-spacing:-.02em">${fmtNum(k.value,k.unit)}</p><p class="text-slate-400 text-xs mt-1">${k.label}</p></div><div class="${up?'text-emerald-400':'text-red-400'} text-xs font-semibold flex gap-1"><span>${up?'↑':'↓'} ${Math.abs(k.change)}%</span><span class="text-slate-600 font-normal">vs prev.</span></div></div>`;}).join('');}
 
-/* ── IT Section ───────────────────────────────────── */
+/* ── IT Section ── */
 function renderITSection(it){
-  // Formula display
-  document.getElementById('it-5g-val').textContent = it.it5gAccepted.toLocaleString();
-  document.getElementById('it-5g-sub').textContent  = it.it5gTotal.toLocaleString()+' sites in 5G tab';
-  document.getElementById('it-4g-val').textContent  = it.it4gOnly.toLocaleString();
-  document.getElementById('it-comb-val').textContent= it.itCombined.toLocaleString();
-  document.getElementById('it-main-val').textContent= it.mainSSVFinal.toLocaleString();
-
+  _itData=it;
+  document.getElementById('it-5g-val').textContent=it.it5gAccepted.toLocaleString();
+  document.getElementById('it-5g-sub').textContent=it.it5gTotal.toLocaleString()+' sites in 5G tab';
+  document.getElementById('it-4g-val').textContent=it.it4gOnly.toLocaleString();
+  document.getElementById('it-comb-val').textContent=it.itCombined.toLocaleString();
+  document.getElementById('it-main-val').textContent=it.mainSSVFinal.toLocaleString();
   const diff=it.difference;
   const pill=document.getElementById('it-diff-pill');
-  const lbl =document.getElementById('it-diff-label');
+  const lbl=document.getElementById('it-diff-label');
+  const hint=document.getElementById('it-diff-hint');
   pill.textContent=(diff>0?'+':'')+diff;
   pill.className='diff-pill '+(diff===0?'diff-zero':diff>0?'diff-pos':'diff-neg');
   lbl.textContent=diff===0?'Perfect match':diff>0?'Main counts more':'IT counts more';
-
+  // Make clickable if mismatch exists
+  const hasMismatch=(it.mainOnlySites&&it.mainOnlySites.length)||(it.itOnlySites&&it.itOnlySites.length);
+  if(hasMismatch){
+    pill.classList.add('clickable');
+    pill.title='Click to see mismatch sites';
+    pill.onclick=()=>openDiffModal(it);
+    hint.style.display='block';
+  } else {
+    pill.classList.remove('clickable');
+    pill.onclick=null;
+    hint.style.display='none';
+  }
   // Detail cards
-  const total=it.mainSSVFinal||1;
   document.getElementById('it-kpi-detail').innerHTML=[
-    {label:'5G Tab — Total Sites',   value:it.it5gTotal,    sub:'All 5G scope sites',      bar:pct(it.it5gTotal,total),   color:'#818cf8'},
-    {label:'5G Tab — Accepted',      value:it.it5gAccepted, sub:pct(it.it5gAccepted,it.it5gTotal)+'% of 5G tab',bar:pct(it.it5gAccepted,it.it5gTotal),color:'#34d399'},
-    {label:'4G Tab — Total Sites',   value:it.it4gTotal,    sub:'All 4G scope sites',      bar:pct(it.it4gTotal,total),   color:'#60a5fa'},
-    {label:'4G-Only Accepted',       value:it.it4gOnly,     sub:'Unique to 4G tab',        bar:pct(it.it4gOnly,it.it4gTotal||1),color:'#fbbf24'},
-  ].map(k=>`
-    <div class="glass kpi-card p-5">
-      <p class="font-display text-2xl font-bold text-white mb-1" style="font-weight:700">${k.value.toLocaleString()}</p>
-      <p class="text-slate-400 text-xs">${k.label}</p>
-      <p class="text-slate-500 text-xs mt-0.5 mb-3">${k.sub}</p>
-      <div class="prog-track"><div class="prog-fill" style="width:${k.bar}%;background:${k.color}"></div></div>
-    </div>`).join('');
-}
+    {label:'5G Tab — Total',     value:it.it5gTotal,    sub:pct(it.it5gTotal,it.it5gTotal+it.it4gTotal)+'% of IT scope',   bar:pct(it.it5gAccepted,it.it5gTotal),   color:'#818cf8'},
+    {label:'5G Tab — Accepted',  value:it.it5gAccepted, sub:pct(it.it5gAccepted,it.it5gTotal)+'% of 5G tab',              bar:pct(it.it5gAccepted,it.it5gTotal),   color:'#34d399'},
+    {label:'4G Tab — Total',     value:it.it4gTotal,    sub:'4G scope sites',                                               bar:pct(it.it4gTotal,it.it5gTotal+it.it4gTotal),color:'#60a5fa'},
+    {label:'4G-Only Accepted',   value:it.it4gOnly,     sub:pct(it.it4gOnly,it.it4gTotal||1)+'% of 4G tab',               bar:pct(it.it4gOnly,it.it4gTotal||1),    color:'#fbbf24'},
+  ].map(k=>`<div class="glass kpi-card p-5"><p class="font-display text-2xl font-bold text-white mb-1" style="font-weight:700">${k.value.toLocaleString()}</p><p class="text-slate-400 text-xs">${k.label}</p><p class="text-slate-500 text-xs mt-0.5 mb-3">${k.sub}</p><div class="prog-track"><div class="prog-fill" style="width:${k.bar}%;background:${k.color}"></div></div></div>`).join('');}
 
-/* ── Progress bars ────────────────────────────────── */
+/* ── Progress ── */
 function renderProgress(kpis,total){
+  const find=l=>kpis.find(k=>k.label===l)?.value||0;
   const items=[
-    {label:'SSV Final Accepted', value:kpis.find(k=>k.label==='SSV Final Accepted')?.value||0, color:'#10b981'},
-    {label:'HO5 Accepted',       value:kpis.find(k=>k.label==='HO5 Accepted')?.value||0,       color:'#6366f1'},
-    {label:'IT Combined Acc.',   value:kpis.find(k=>k.label==='IT Combined Acc.')?.value||0,    color:'#3b82f6'},
-    {label:'RFS Declared',       value:kpis.find(k=>k.label==='RFS Declared')?.value||0,        color:'#f59e0b'},
+    {label:'SSV Final Accepted', value:find('SSV Final Accepted'), color:'#10b981'},
+    {label:'HO5 Accepted',       value:find('HO5 Accepted'),       color:'#6366f1'},
+    {label:'IT Combined Acc.',   value:find('IT Combined Acc.'),   color:'#3b82f6'},
+    {label:'RFS Declared',       value:find('RFS Declared'),       color:'#f59e0b'},
   ];
-  document.getElementById('progress-section').innerHTML=items.map(item=>{
-    const p=pct(item.value,total);
-    return `<div>
-      <div class="flex justify-between mb-2">
-        <span class="text-sm text-slate-300">${item.label}</span>
-        <span class="text-sm font-semibold text-white">${item.value.toLocaleString()} <span class="text-slate-500 font-normal text-xs">(${p}%)</span></span>
-      </div>
-      <div class="prog-track"><div class="prog-fill" style="width:${p}%;background:${item.color}"></div></div>
-    </div>`;
-  }).join('');
-}
+  document.getElementById('progress-section').innerHTML=items.map(it=>{const p=pct(it.value,total);return`<div><div class="flex justify-between mb-2"><span class="text-sm text-slate-300">${it.label}</span><span class="text-sm font-semibold text-white">${it.value.toLocaleString()} <span class="text-slate-500 font-normal text-xs">(${p}%)</span></span></div><div class="prog-track"><div class="prog-fill" style="width:${p}%;background:${it.color}"></div></div></div>`;}).join('');}
 
-/* ── Line Chart ───────────────────────────────────── */
-function renderLineChart(d){
-  document.getElementById('chart-title').textContent=d.title;
-  if(lineChartInst)lineChartInst.destroy();
-  lineChartInst=new Chart(document.getElementById('lineChart').getContext('2d'),{
-    type:'line',
-    data:{labels:d.labels,datasets:d.datasets.map(ds=>({
-      label:ds.label,data:ds.data,borderColor:ds.color,backgroundColor:ds.color+'18',
-      borderWidth:2.5,pointBackgroundColor:ds.color,pointRadius:4,pointHoverRadius:6,tension:.4,fill:true
-    }))},
-    options:{responsive:true,maintainAspectRatio:false,
-      interaction:{mode:'index',intersect:false},
-      plugins:{
-        legend:{labels:{color:'#94a3b8',font:{family:'DM Sans',size:12},boxWidth:12,padding:16}},
-        tooltip:{backgroundColor:'rgba(15,23,42,.92)',borderColor:'rgba(255,255,255,.1)',borderWidth:1,
-          titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:12,
-          titleFont:{family:'Sora',size:12},bodyFont:{family:'DM Sans',size:12}}
-      },
-      scales:{
-        x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{family:'DM Sans',size:11}}},
-        y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{family:'DM Sans',size:11}}}
-      }
-    }
-  });
-}
+/* ── Charts ── */
+const chartCfg={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{labels:{color:'#94a3b8',font:{family:'DM Sans',size:11},boxWidth:10,padding:12}},
+    tooltip:{backgroundColor:'rgba(15,23,42,.92)',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:12}},
+  scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{family:'DM Sans',size:10},maxRotation:30}},
+          y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{family:'DM Sans',size:11}}}}};
 
-/* ── Donut Chart ──────────────────────────────────── */
-function renderDonutChart(d){
-  document.getElementById('donut-title').textContent=d.title;
-  if(donutChartInst)donutChartInst.destroy();
-  donutChartInst=new Chart(document.getElementById('donutChart').getContext('2d'),{
-    type:'doughnut',
-    data:{labels:d.labels,datasets:[{data:d.data,backgroundColor:d.colors.map(c=>c+'cc'),borderColor:d.colors,borderWidth:2,hoverOffset:8}]},
-    options:{responsive:true,maintainAspectRatio:true,cutout:'68%',
-      plugins:{
-        legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'DM Sans',size:11},boxWidth:10,padding:12,
-          generateLabels(chart){
-            return chart.data.labels.map((l,i)=>({
-              text:l.length>20?l.slice(0,18)+'…':l,
-              fillStyle:chart.data.datasets[0].backgroundColor[i],
-              strokeStyle:chart.data.datasets[0].borderColor[i],
-              lineWidth:2,index:i
-            }));
-          }
-        }},
-        tooltip:{backgroundColor:'rgba(15,23,42,.92)',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:12}
-      }
-    }
-  });
-}
+function renderLineChart(d){document.getElementById('chart-title').textContent=d.title;if(lineChartInst)lineChartInst.destroy();lineChartInst=new Chart(document.getElementById('lineChart').getContext('2d'),{type:'line',data:{labels:d.labels,datasets:d.datasets.map(ds=>({label:ds.label,data:ds.data,borderColor:ds.color,backgroundColor:ds.color+'18',borderWidth:2.5,pointBackgroundColor:ds.color,pointRadius:4,pointHoverRadius:6,tension:.4,fill:true}))},options:chartCfg});}
 
-/* ── Region Chart ─────────────────────────────────── */
-function renderRegionChart(rb){
-  if(regionChartInst)regionChartInst.destroy();
-  regionChartInst=new Chart(document.getElementById('regionChart').getContext('2d'),{
-    type:'bar',
-    data:{
-      labels:rb.labels,
-      datasets:[
-        {label:'Total Sites',   data:rb.total,       backgroundColor:'rgba(99,102,241,.2)', borderColor:'#6366f1',borderWidth:1.5},
-        {label:'SSV Accepted',  data:rb.ssvAccepted, backgroundColor:'rgba(16,185,129,.35)',borderColor:'#10b981',borderWidth:1.5},
-        {label:'HO5 Accepted',  data:rb.ho5Accepted, backgroundColor:'rgba(245,158,11,.3)', borderColor:'#f59e0b',borderWidth:1.5},
-        {label:'RFS Declared',  data:rb.rfs,         backgroundColor:'rgba(59,130,246,.3)', borderColor:'#3b82f6',borderWidth:1.5},
-      ]
-    },
-    options:{responsive:true,maintainAspectRatio:false,
-      interaction:{mode:'index',intersect:false},
-      plugins:{
-        legend:{labels:{color:'#94a3b8',font:{family:'DM Sans',size:11},boxWidth:10,padding:12}},
-        tooltip:{backgroundColor:'rgba(15,23,42,.92)',borderColor:'rgba(255,255,255,.1)',borderWidth:1,
-          titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:12}
-      },
-      scales:{
-        x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{family:'DM Sans',size:10},maxRotation:35}},
-        y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{family:'DM Sans',size:11}}}
-      }
-    }
-  });
-}
+function renderDonutChart(d){document.getElementById('donut-title').textContent=d.title;if(donutChartInst)donutChartInst.destroy();donutChartInst=new Chart(document.getElementById('donutChart').getContext('2d'),{type:'doughnut',data:{labels:d.labels,datasets:[{data:d.data,backgroundColor:d.colors.map(c=>c+'cc'),borderColor:d.colors,borderWidth:2,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:true,cutout:'68%',plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{family:'DM Sans',size:10},boxWidth:8,padding:10}},tooltip:{backgroundColor:'rgba(15,23,42,.92)',borderColor:'rgba(255,255,255,.1)',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#94a3b8',padding:10}}}});}
 
-/* ── Table ────────────────────────────────────────── */
+function renderRegionChart(rb){if(regionChartInst)regionChartInst.destroy();regionChartInst=new Chart(document.getElementById('regionChart').getContext('2d'),{type:'bar',data:{labels:rb.labels,datasets:[{label:'Total Sites',data:rb.total,backgroundColor:'rgba(99,102,241,.2)',borderColor:'#6366f1',borderWidth:1.5},{label:'SSV Accepted',data:rb.ssvAccepted,backgroundColor:'rgba(16,185,129,.35)',borderColor:'#10b981',borderWidth:1.5},{label:'HO5 Accepted',data:rb.ho5Accepted,backgroundColor:'rgba(245,158,11,.3)',borderColor:'#f59e0b',borderWidth:1.5},{label:'RFS Declared',data:rb.rfs,backgroundColor:'rgba(59,130,246,.3)',borderColor:'#3b82f6',borderWidth:1.5}]},options:Object.assign({},chartCfg,{maintainAspectRatio:false})});}
+
+/* ── Table ── */
 let tableColumns=[];
 const BADGE_COLS=new Set(['SSV Status','IT Accepted']);
+function renderTableHeader(cols){tableColumns=cols;document.getElementById('table-header').innerHTML=cols.map((c,i)=>`<th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider" onclick="sortTable(${i})">${c}<span id="sort-${i}" class="sort-icon">⇅</span></th>`).join('');}
+function applyFilters(){const q=document.getElementById('search-input').value.toLowerCase().trim();filteredRows=allRows.filter(r=>{const ms=!q||r.some(c=>String(c).toLowerCase().includes(q));const mc=activeFilter==='All'||r.some(c=>String(c).toLowerCase()===activeFilter.toLowerCase());return ms&&mc;});if(sortColIdx>=0)applySortToFiltered();currentPage=1;renderTablePage();}
+function sortTable(ci){sortAsc=(sortColIdx===ci)?!sortAsc:true;sortColIdx=ci;document.querySelectorAll('.sort-icon').forEach((el,i)=>{el.textContent=i===ci?(sortAsc?'↑':'↓'):'⇅';el.classList.toggle('active',i===ci);});applySortToFiltered();currentPage=1;renderTablePage();}
+function applySortToFiltered(){filteredRows.sort((a,b)=>{const av=a[sortColIdx]??'',bv=b[sortColIdx]??'';const an=parseFloat(av),bn=parseFloat(bv);if(!isNaN(an)&&!isNaN(bn))return sortAsc?an-bn:bn-an;return sortAsc?String(av).localeCompare(String(bv)):String(bv).localeCompare(String(av));});}
+function renderTablePage(){const start=(currentPage-1)*ROWS_PER_PAGE,page=filteredRows.slice(start,start+ROWS_PER_PAGE),total=filteredRows.length,pages=Math.max(1,Math.ceil(total/ROWS_PER_PAGE));document.getElementById('table-body').innerHTML=page.length?page.map(r=>`<tr>${r.map((c,ci)=>`<td class="px-4 py-3 whitespace-nowrap text-xs">${BADGE_COLS.has(tableColumns[ci])?statusBadge(c):`<span class="text-slate-300">${c}</span>`}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${tableColumns.length}" class="px-4 py-10 text-center text-slate-500 text-sm">No records match.</td></tr>`;document.getElementById('page-info').textContent=`Showing ${Math.min(start+1,total)}–${Math.min(start+ROWS_PER_PAGE,total)} of ${total} records`;document.getElementById('prev-btn').disabled=currentPage<=1;document.getElementById('next-btn').disabled=currentPage>=pages;document.getElementById('table-count').textContent=`${total} record${total!==1?'s':''}`;}
+function changePage(d){currentPage=Math.max(1,Math.min(Math.ceil(filteredRows.length/ROWS_PER_PAGE),currentPage+d));renderTablePage();}
+function buildFilterChips(rows){const s=['All',...new Set(rows.map(r=>r[4]).filter(Boolean))];document.getElementById('filter-chips').innerHTML=s.map(v=>`<button class="filter-chip ${v===activeFilter?'active':''}" onclick="setFilter('${v}')">${v}</button>`).join('');}
+function setFilter(v){activeFilter=v;document.querySelectorAll('.filter-chip').forEach(el=>el.classList.toggle('active',el.textContent.trim()===v));applyFilters();}
 
-function renderTableHeader(cols){
-  tableColumns=cols;
-  document.getElementById('table-header').innerHTML=cols.map((c,i)=>`
-    <th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider" onclick="sortTable(${i})">
-      ${c}<span id="sort-${i}" class="sort-icon">⇅</span>
-    </th>`).join('');
-}
-function applyFilters(){
-  const q=document.getElementById('search-input').value.toLowerCase().trim();
-  filteredRows=allRows.filter(r=>{
-    const ms=!q||r.some(c=>String(c).toLowerCase().includes(q));
-    const mc=activeFilter==='All'||r.some(c=>String(c).toLowerCase()===activeFilter.toLowerCase());
-    return ms&&mc;
-  });
-  if(sortColIdx>=0)applySortToFiltered();
-  currentPage=1; renderTablePage();
-}
-function sortTable(ci){
-  sortAsc=(sortColIdx===ci)?!sortAsc:true; sortColIdx=ci;
-  document.querySelectorAll('.sort-icon').forEach((el,i)=>{
-    el.textContent=i===ci?(sortAsc?'↑':'↓'):'⇅';
-    el.classList.toggle('active',i===ci);
-  });
-  applySortToFiltered(); currentPage=1; renderTablePage();
-}
-function applySortToFiltered(){
-  filteredRows.sort((a,b)=>{
-    const av=a[sortColIdx]??'',bv=b[sortColIdx]??'';
-    const an=parseFloat(av),bn=parseFloat(bv);
-    if(!isNaN(an)&&!isNaN(bn))return sortAsc?an-bn:bn-an;
-    return sortAsc?String(av).localeCompare(String(bv)):String(bv).localeCompare(String(av));
-  });
-}
-function renderTablePage(){
-  const start=(currentPage-1)*ROWS_PER_PAGE;
-  const page=filteredRows.slice(start,start+ROWS_PER_PAGE);
-  const total=filteredRows.length, pages=Math.max(1,Math.ceil(total/ROWS_PER_PAGE));
-  document.getElementById('table-body').innerHTML=page.length
-    ?page.map(r=>`<tr>${r.map((c,ci)=>`<td class="px-4 py-3 whitespace-nowrap text-xs">${BADGE_COLS.has(tableColumns[ci])?statusBadge(c):`<span class="text-slate-300">${c}</span>`}</td>`).join('')}</tr>`).join('')
-    :`<tr><td colspan="${tableColumns.length}" class="px-4 py-10 text-center text-slate-500 text-sm">No records match your search.</td></tr>`;
-  document.getElementById('page-info').textContent=`Showing ${Math.min(start+1,total)}–${Math.min(start+ROWS_PER_PAGE,total)} of ${total} records`;
-  document.getElementById('prev-btn').disabled=currentPage<=1;
-  document.getElementById('next-btn').disabled=currentPage>=pages;
-  document.getElementById('table-count').textContent=`${total} record${total!==1?'s':''}`;
-}
-function changePage(d){
-  currentPage=Math.max(1,Math.min(Math.ceil(filteredRows.length/ROWS_PER_PAGE),currentPage+d));
-  renderTablePage();
-}
-function buildFilterChips(rows){
-  const statuses=['All',...new Set(rows.map(r=>r[4]).filter(Boolean))];
-  document.getElementById('filter-chips').innerHTML=statuses.map(s=>`
-    <button class="filter-chip ${s===activeFilter?'active':''}" onclick="setFilter('${s}')">${s}</button>`).join('');
-}
-function setFilter(v){
-  activeFilter=v;
-  document.querySelectorAll('.filter-chip').forEach(el=>el.classList.toggle('active',el.textContent.trim()===v));
-  applyFilters();
+/* ════════════════════════════════════════════════
+   MODAL — DRILL-DOWN
+════════════════════════════════════════════════ */
+let _modalAllRows=[], _modalActiveTab='main';
+
+function openDiffModal(it){
+  _itData=it;
+  _modalAllRows=[];
+  const mainOnly=it.mainOnlySites||[];
+  const itOnly  =it.itOnlySites  ||[];
+  mainOnly.forEach(s=>_modalAllRows.push({...s,_side:'main'}));
+  itOnly.forEach(s=>_modalAllRows.push({...s,_side:'it'}));
+
+  document.getElementById('modal-title').textContent='IT vs Main — Mismatch Sites';
+  document.getElementById('modal-subtitle').textContent=
+    `${mainOnly.length} site${mainOnly.length!==1?'s':''} in Main only · `+
+    `${itOnly.length} site${itOnly.length!==1?'s':''} in IT only · Net difference: `+
+    (it.difference>0?'+':'')+it.difference;
+
+  document.getElementById('modal-search').value='';
+  _modalActiveTab='all';
+  renderModalList(_modalAllRows);
+  document.getElementById('modal-overlay').classList.add('open');
+  document.addEventListener('keydown',_escClose);
 }
 
-/* ── Main render ──────────────────────────────────── */
+function _escClose(e){if(e.key==='Escape')closeModal();}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');document.removeEventListener('keydown',_escClose);}
+
+function filterModal(){
+  const q=document.getElementById('modal-search').value.toLowerCase().trim();
+  const filtered=_modalAllRows.filter(s=>
+    Object.values(s).some(v=>String(v).toLowerCase().includes(q))
+  );
+  renderModalList(filtered);
+}
+
+function renderModalList(rows){
+  const mainRows=rows.filter(r=>r._side==='main');
+  const itRows  =rows.filter(r=>r._side==='it');
+
+  document.getElementById('modal-counts').innerHTML=
+    `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold" style="background:rgba(99,102,241,.12);color:#a5b4fc;border:1px solid rgba(99,102,241,.2)">In Main only: ${mainRows.length}</span>`+
+    `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold" style="background:rgba(16,185,129,.12);color:#6ee7b7;border:1px solid rgba(16,185,129,.2)">In IT only: ${itRows.length}</span>`;
+
+  let html='';
+
+  if(mainRows.length){
+    html+=`<p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2 mt-1">In Main SSV — not in IT combined</p>`;
+    html+=mainRows.map(s=>`
+      <div class="modal-site-row">
+        <span class="modal-badge badge-main">MAIN</span>
+        <span class="font-semibold text-white">${s.id}</span>
+        <span class="text-slate-400">${s.gov||''}${s.city?(' · '+s.city):''}</span>
+        <span class="text-slate-500">${s.activity||''}</span>
+        <span class="text-slate-500">${s.ssvAccDate||''}</span>
+      </div>`).join('');
+  }
+
+  if(itRows.length){
+    html+=`<p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2 mt-4">In IT combined — not in Main SSV</p>`;
+    html+=itRows.map(s=>`
+      <div class="modal-site-row">
+        <span class="modal-badge badge-iton">IT</span>
+        <span class="font-semibold text-white">${s.id}</span>
+        <span class="text-slate-400">${s.src||''}</span>
+        <span class="text-slate-500">${s.feedback||''}</span>
+        <span class="text-slate-500">${s.accDate||''}</span>
+      </div>`).join('');
+  }
+
+  if(!rows.length){
+    html=`<p class="text-center text-slate-500 py-10 text-sm">No sites match your search.</p>`;
+  }
+
+  document.getElementById('modal-list').innerHTML=html;
+}
+
+/* ── Main render ── */
 function renderDashboard(data){
   document.getElementById('dash-title').textContent=data.meta.project;
   document.getElementById('dash-subtitle').textContent=`${data.meta.reportTitle} · ${data.meta.period}`;
   document.getElementById('last-updated').textContent=fmtDate(data.meta.lastUpdated);
-
   const total=data.kpis.find(k=>k.label==='Total Sites')?.value||0;
-
   renderKPIs(data.kpis);
-  renderProgress(data.kpis, total);
+  renderProgress(data.kpis,total);
   renderLineChart(data.chart);
   renderDonutChart(data.donut);
-
-  if(data.itSummary&&data.itSummary.enabled){
-    renderITSection(data.itSummary);
-    document.getElementById('it-section').classList.remove('hidden');
-  } else {
-    document.getElementById('it-section').classList.add('hidden');
-  }
-
-  if(data.regionBreakdown&&data.regionBreakdown.labels?.length){
-    renderRegionChart(data.regionBreakdown);
-  }
-
-  allRows=data.table.rows; filteredRows=[...allRows];
-  renderTableHeader(data.table.columns);
-  buildFilterChips(allRows);
-  renderTablePage();
+  if(data.itSummary&&data.itSummary.enabled){renderITSection(data.itSummary);document.getElementById('it-section').classList.remove('hidden');}
+  else document.getElementById('it-section').classList.add('hidden');
+  if(data.regionBreakdown?.labels?.length)renderRegionChart(data.regionBreakdown);
+  allRows=data.table.rows;filteredRows=[...allRows];
+  renderTableHeader(data.table.columns);buildFilterChips(allRows);renderTablePage();
 }
 
-/* ── Load data ────────────────────────────────────── */
+/* ── Load ── */
 async function loadData(){
-  hideError(); setLoading(true);
+  hideError();setLoading(true);
   try{
     const res=await fetch(`${DATA_URL}?v=${Date.now()}`);
     if(!res.ok)throw new Error(`Server returned ${res.status} ${res.statusText}`);
     const data=await res.json();
     if(!data.meta||!data.kpis||!data.chart||!data.table)
-      throw new Error('data.json is missing required fields. Please re-export from the dashboard.');
-    renderDashboard(data);
-    setLoading(false);
-  }catch(err){
-    setLoading(false);
-    showError(err.message||'Check that data.json is in the same folder as index.html.');
-    console.error('[Dashboard]',err);
-  }
+      throw new Error('data.json is missing required fields. Re-export from the dashboard.');
+    renderDashboard(data);setLoading(false);
+  }catch(err){setLoading(false);showError(err.message||'Check that data.json is in the same folder.');console.error('[Dashboard]',err);}
 }
 document.addEventListener('DOMContentLoaded',loadData);
 </script>

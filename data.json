@@ -2,7 +2,7 @@
   "meta": {
     "project": "Mobily 3Y NW Expansion",
     "reportTitle": "Project Progress Report",
-    "lastUpdated": "2026-06-02T07:58:38.533Z",
+    "lastUpdated": "2026-06-02T08:14:13.054Z",
     "period": "June 2026"
   },
   "kpis": [
@@ -40,7 +40,7 @@
     },
     {
       "label": "IT Combined Acc.",
-      "value": 1212,
+      "value": 1174,
       "unit": "",
       "change": 0,
       "trend": "up",
@@ -127,15 +127,25 @@
   },
   "itSummary": {
     "enabled": true,
-    "it5gTotal": 1149,
-    "it5gAccepted": 1117,
-    "it4gTotal": 929,
-    "it4gAccepted": 906,
-    "itCombined": 1212,
-    "it5gOnly": 1117,
+    "it5gTotal": 1148,
+    "it5gAccepted": 1079,
+    "it4gTotal": 928,
+    "it4gAccepted": 95,
+    "itCombined": 1174,
+    "it5gOnly": 1079,
     "it4gOnly": 95,
     "mainSSVFinal": 1175,
-    "difference": -37
+    "difference": 1,
+    "mainOnlySites": [],
+    "itOnlySites": [
+      {
+        "id": "W2325",
+        "src": "IT",
+        "accDate": "2026-05-15",
+        "feedback": "Accepted",
+        "note": "In IT combined — not in Main SSV"
+      }
+    ]
   },
   "regionBreakdown": {
     "labels": [
