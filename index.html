@@ -922,13 +922,13 @@ function renderSubmittedKPIs(data){
   _sub5gSites=(data.submitted5G?.sites||[]);
   _totalSites=data.kpis.find(k=>k.label==='Total Sites')?.value||1;
 
-  // Update submitted cards
+  // Update submitted cards (submitted but NOT yet accepted)
   const s4=$('mgmt-4g-sub'), s5=$('mgmt-5g-sub');
   if(s4){s4.textContent=(data.submitted4G?.count||0).toLocaleString();}
   if(s5){s5.textContent=(data.submitted5G?.count||0).toLocaleString();}
   const l4=$('mgmt-4g-sub-last'), l5=$('mgmt-5g-sub-last');
-  if(l4)l4.textContent='Last: '+(data.submitted4G?.lastDate||'—');
-  if(l5)l5.textContent='Last: '+(data.submitted5G?.lastDate||'—');
+  if(l4)l4.textContent='Last: '+(data.submitted4G?.lastDate||'—')+' · Pending only';
+  if(l5)l5.textContent='Last: '+(data.submitted5G?.lastDate||'—')+' · Pending only';
   const b4=$('mgmt-4g-sub-bar'), b5=$('mgmt-5g-sub-bar');
   if(b4)b4.style.width=Math.round((data.submitted4G?.count||0)/_totalSites*100)+'%';
   if(b5)b5.style.width=Math.round((data.submitted5G?.count||0)/_totalSites*100)+'%';
@@ -1010,8 +1010,8 @@ function renderAgingSummaryM(){
 function openAgingModalM(label, sites){
   if(!sites||!sites.length){alert('No sites in this group.');return;}
   _siteModalRows=[]; _modalAllRows=[];
-  $('modal-title').textContent='Aging: '+label+' — Site Details';
-  $('modal-subtitle').textContent=sites.length+' site'+(sites.length!==1?'s':'')+' · Click a row to copy Site ID';
+  $('modal-title').textContent='Aging: '+label+' — Submitted (Pending Acceptance)';
+  $('modal-subtitle').textContent=sites.length+' site'+(sites.length!==1?'s':'')+' · Submitted but not yet accepted · Click a row to copy Site ID';
   $('modal-search').value='';
 
   const STATUS_COLOR={accepted:'#10b981',submitted:'#6366f1','under it':'#f59e0b'};
