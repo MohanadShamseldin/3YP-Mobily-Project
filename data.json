@@ -2,7 +2,7 @@
   "meta": {
     "project": "Mobily 3Y NW Expansion",
     "reportTitle": "Project Progress Report",
-    "lastUpdated": "2026-06-02",
+    "lastUpdated": "2026-06-02T07:58:38.533Z",
     "period": "June 2026"
   },
   "kpis": [
@@ -40,7 +40,7 @@
     },
     {
       "label": "IT Combined Acc.",
-      "value": 1174,
+      "value": 1212,
       "unit": "",
       "change": 0,
       "trend": "up",
@@ -58,35 +58,47 @@
   "chart": {
     "title": "Monthly SSV Acceptance Progress",
     "labels": [
-      "Invalid Date",
-      "Nov 01",
-      "Oct 01",
-      "Jan 01",
-      "Jan 01",
-      "Sept 01"
+      "Aug 25",
+      "Sept 25",
+      "Oct 25",
+      "Nov 25",
+      "Dec 25",
+      "Jan 26",
+      "Feb 26",
+      "Mar 26",
+      "Apr 26",
+      "May 26"
     ],
     "datasets": [
       {
         "label": "SSV Submitted",
         "data": [
-          30,
-          208,
-          198,
-          0,
-          20,
-          129
+          1,
+          95,
+          215,
+          209,
+          216,
+          136,
+          100,
+          89,
+          81,
+          89
         ],
         "color": "#6366f1"
       },
       {
         "label": "SSV Accepted",
         "data": [
-          12,
-          208,
-          198,
-          0,
-          20,
-          129
+          1,
+          84,
+          184,
+          223,
+          222,
+          130,
+          98,
+          86,
+          87,
+          60
         ],
         "color": "#10b981"
       }
@@ -115,15 +127,15 @@
   },
   "itSummary": {
     "enabled": true,
-    "it5gTotal": 1148,
-    "it5gAccepted": 1079,
-    "it4gTotal": 928,
-    "it4gAccepted": 894,
-    "itCombined": 1174,
-    "it5gOnly": 1079,
+    "it5gTotal": 1149,
+    "it5gAccepted": 1117,
+    "it4gTotal": 929,
+    "it4gAccepted": 906,
+    "itCombined": 1212,
+    "it5gOnly": 1117,
     "it4gOnly": 95,
     "mainSSVFinal": 1175,
-    "difference": 1
+    "difference": -37
   },
   "regionBreakdown": {
     "labels": [
